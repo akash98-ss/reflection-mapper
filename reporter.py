@@ -1,7 +1,7 @@
-return {
-    "parameter": parameter,
-    "url": new_url,
-    "status_code": response.status_code,
-    "response_length": len(response.text),
-    "reflected": MARKER in response.text
-}
+import json
+
+def save_report(results, filename="report.json"):
+    with open(filename, "w") as f:
+        json.dump(results, f, indent=4)
+
+    print(f"[+] Report saved to {filename}")
