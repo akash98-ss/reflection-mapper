@@ -1,3 +1,4 @@
+@'
 import argparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from urllib.parse import urlparse, parse_qs
@@ -28,7 +29,7 @@ def parse_arguments():
     parser.add_argument(
         "--report",
         metavar="FILE",
-        help="Save the report as JSON or HTML"
+        help="Save the report to the specified file"
     )
 
     parser.add_argument(
@@ -70,7 +71,7 @@ def main():
     params = parse_qs(urlparse(target).query)
 
     if not params:
-        print("[-] No query parameters found.")
+        print("[-] No query parameters found in target URL.")
         print(f"    Target: {target}")
         return 1
 
@@ -82,14 +83,12 @@ def main():
     results = []
 
     with ThreadPoolExecutor(max_workers=args.threads) as executor:
-
         futures = {
             executor.submit(test_parameter, target, param): param
             for param in params
         }
 
         for future in as_completed(futures):
-
             parameter = futures[future]
 
             try:
@@ -111,15 +110,13 @@ def main():
 
             results.append(result)
 
-            if result.get("reflected"):
-                print(f"[REFLECTED] {parameter}")
-            else:
-                print(f"[NOT REFLECTED] {parameter}")
+            status = "REFLECTED" if result.get("reflected") else "not reflected"
+            print(f"[{status}] {parameter}")
 
     save_report(results, output_file)
 
     print()
-    print("[+] Scan complete")
+    print(f"[+] Scan complete")
     print(f"[+] Results: {len(results)}")
     print(f"[+] Report: {output_file}")
 
@@ -128,3 +125,4 @@ def main():
 
 if __name__ == "__main__":
     raise SystemExit(main())
+'@ | Set-Content .\main.py
